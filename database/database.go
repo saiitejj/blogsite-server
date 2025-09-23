@@ -1,6 +1,7 @@
 package database
 
 import (
+	"blogsite_server/models"
 	"log"
 	"os"
 
@@ -18,5 +19,8 @@ func ConnectToDB(){
 		log.Fatal("Failed to connect to database")
 	}
 	log.Println("Database Connection successful")
-	
+
+	log.Println("Running Migrations")
+	DB.AutoMigrate(&models.User{})
+
 }
