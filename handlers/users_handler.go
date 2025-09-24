@@ -44,7 +44,32 @@ func RegisterUser(c *gin.Context) {
 
 // LoginUser is a placeholder for the user login logic.
 func LoginUser(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Handling user login"})
+	var body struct{
+		Email string
+		Password string
+	}
+
+	if c.Bind(&body)!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"Failed to read request"})
+		return
+	}
+	var user models.User
+	database.DB.First(&user,"email=?",body.Email)
+
+	if user.ID==0{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+	err:=bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(body.Password))
+
+	if err!=nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in"})
 }
 
 // GetUserProfile is a placeholder for fetching a user's profile.
