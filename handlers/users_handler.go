@@ -6,6 +6,7 @@ import (
 	"blogsite_server/models"
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // RegisterUser is a placeholder for the user registration logic.
@@ -18,13 +19,18 @@ func RegisterUser(c *gin.Context) {
 	}
 	
 	if c.Bind(&body)!=nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
+	}
+	hash,err:=bcrypt.GenerateFromPassword([]byte(body.Password),10)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error":"Failed to hash password"})
+		return 
 	}
 	user:=models.User{
 		Username: body.Username,
 		Email: body.Email,
-		Password: body.Password,
+		Password: string(hash),
 	}
 
 	result:=database.DB.Create(&user)
