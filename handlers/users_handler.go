@@ -5,8 +5,12 @@ import (
 	"blogsite_server/database"
 	"blogsite_server/models"
 	"net/http"
+	"os"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // RegisterUser is a placeholder for the user registration logic.
@@ -68,8 +72,35 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	token:=jwt.NewWithClaims(jwt.SigningMethodHS256,jwt.MapClaims{
+		"sub":user.ID,
+		"exp":time.Now().Add(time.Hour*24*30).Unix(),
+	})
+	
+	tokenString,err:=token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in"})
+	if err!=nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create token"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": tokenString,
+	})
+
+
+
+	// c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in"})
+}
+
+func Validate(c *gin.Context) {
+	// Get the user from the context (attached by RequireAuth middleware)
+	user, _ := c.Get("user")
+
+	// Respond with the user's information
+	c.JSON(http.StatusOK, gin.H{
+		"message": "I am logged in",
+		"user":    user,
+	})
 }
 
 // GetUserProfile is a placeholder for fetching a user's profile.

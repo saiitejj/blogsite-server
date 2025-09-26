@@ -2,6 +2,7 @@ package routes
 
 import (
 	"blogsite_server/handlers"
+	"blogsite_server/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func SetupRoutes(router *gin.Engine) {
 		api.POST("/users/login",handlers.LoginUser)
 		api.GET("/users/:id",handlers.GetUserProfile)
 
+		api.GET("/validate", middleware.RequireAuth, handlers.Validate)
 
 		api.GET("/posts",handlers.GetAllPosts)
 		api.POST("/posts",handlers.CreatePost)
