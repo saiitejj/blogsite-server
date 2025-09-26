@@ -18,7 +18,7 @@ func SetupRoutes(router *gin.Engine) {
 		api.GET("/validate", middleware.RequireAuth, handlers.Validate)
 
 		api.GET("/posts",handlers.GetAllPosts)
-		api.POST("/posts",handlers.CreatePost)
+		api.POST("/posts",middleware.RequireAuth,handlers.CreatePost)
 		api.GET("/posts/:id",handlers.GetPostByID)
 		api.PUT("/posts/:id",handlers.UpdatePost)
 		api.DELETE("/posts/:id",handlers.DeletePost)

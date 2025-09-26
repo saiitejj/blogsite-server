@@ -21,6 +21,6 @@ func ConnectToDB(){
 	log.Println("Database Connection successful")
 
 	log.Println("Running Migrations")
-	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.User{},&models.Post{},&models.Tag{})
 
 }
