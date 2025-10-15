@@ -5,6 +5,7 @@ import (
 	"blogsite_server/database"
 	"log"
 	"os" // for env variables
+	"github.com/gin-contrib/cors" // Importing the cors package
 
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func main(){
 	}
 	database.ConnectToDB()
 	router:=gin.Default()
-
+	router.Use(cors.Default())
 	routes.SetupRoutes(router)
 	port:=os.Getenv("PORT")
 	if port==""{

@@ -77,13 +77,55 @@ func GetPostByID(c *gin.Context) {
 }
 // UpdatePost is a placeholder for updating a post.
 func UpdatePost(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Handling post update"})
+	id:=c.Param("id")
+	var body struct{
+		Title string
+		Content string
+	}
+	c.Bind(&body)
+
+	var post models.Post
+	database.DB.First(&post,id)
+	if post.ID==0{
+		c.JSON(http.StatusNotFound,gin.H{"error":"Post not found"})
+		return
+	}
+	user,_:=c.Get("user")
+	if post.UserID!=user.(models.User).ID{
+		c.JSON(http.StatusUnauthorized,gin.H{"error":"You are not authorized"})
+		return
+	}
+	database.DB.Model(&post).Updates(models.Post{
+		Title: body.Title,
+		Content: body.Content,
+	})
+
+	c.JSON(http.StatusOK, gin.H{"post":post})
 }
 
 // DeletePost is a placeholder for deleting a post.
 func DeletePost(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Handling post deletion"})
+	id := c.Param("id")
+
+	var post models.Post
+	database.DB.First(&post, id)
+	if post.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
+
+	user, _ := c.Get("user")
+
+	if post.UserID != user.(models.User).ID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to delete this post"})
+		return
+	}
+
+	database.DB.Delete(&models.Post{}, id)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
+
 
 // SearchPosts is a placeholder for searching posts.
 func SearchPosts(c *gin.Context) {
